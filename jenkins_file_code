@@ -1,0 +1,23 @@
+pipeline {
+    agent { label 'master' }    
+  stages {
+          stage('SQL-script-runner') {
+            steps {
+                step([$class: 'SQLPlusRunnerBuilder',credentialsId:'shandb-priv-id', instance:'client_access',scriptType:'userDefined', script: '',scriptContent: 'select * from v$version'])
+                step([$class: 'SQLPlusRunnerBuilder',credentialsId:'shandb-priv-id', instance:'client_access',scriptType:'userDefined', script: '',scriptContent: 'select name from v$database'])
+                step([$class: 'SQLPlusRunnerBuilder',credentialsId:'shandb-priv-id', instance:'client_access',scriptType:'file', script: 'tablespace_usage_listing.sql',scriptContent: ''])
+                     }
+                  }
+           stage('Email-attachement') {
+                     when {
+                     expression { return readFile('tablespace_usage_logfile.log').contains('Tablespace') }
+                          }
+                       steps {                                               
+                              emailext mimeType: 'text/html',
+                              body: '${FILE, path="tablespace_usage_logfile.html"}',
+                              subject: "Tablespace alert  -Critical threshold reaching 90% ",
+                              to: 'mshan011181@gmail.com'                   
+                                  }
+                      } 
+       }
+}
