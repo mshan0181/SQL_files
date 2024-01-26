@@ -1,3 +1,5 @@
+SET MARKUP HTML ON  
+spool top_sessions_logfile.html
 select * from (
 select
      session_id,
@@ -14,3 +16,5 @@ where session_type='FOREGROUND'
 group by session_id,session_serial#,module,action,program
 order by sum(decode(session_state,'WAITING',1,1)) desc)
 where rownum <11;
+spool off 
+SET MARKUP HTML OFF
