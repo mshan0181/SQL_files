@@ -1,4 +1,6 @@
 col cpu_usage_sec form 99990 heading "CPU in Seconds"
+SET MARKUP HTML ON  
+spool top_SQLs_by_CPU.html
 select * from (
 select
 (se.SID),substr(q.sql_text,80),ss.module,ss.status,se.VALUE/100 cpu_usage_sec
@@ -15,3 +17,4 @@ and ss.status='ACTIVE'
 and ss.username is not null
 and ss.paddr=p.addr and value > 0
 order by se.VALUE desc);
+SET MARKUP HTML OFF
